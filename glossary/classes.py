@@ -1,6 +1,7 @@
 import json
 import requests
 
+
 class Glossary:
 
     def __init__(self):
@@ -12,7 +13,6 @@ class Glossary:
         self.synonyms = []
         self.antonyms = []
 
-
     def new_word(self, word):
         self.word = word
         self.ready_for_request = True
@@ -23,8 +23,8 @@ class Glossary:
         self.status = False
 
     def get(self):
-        '''
-        If there is such a word in an API, it returns list of dictionaries. 
+        """
+        If there is such a word in an API, it returns list of dictionaries.
         In this realisation only first dictionary from the list is used
         If request returns dictionary, and not a list, it means that there is no such word.
 
@@ -56,7 +56,7 @@ class Glossary:
 
         We are constructing self.meanings to look like this:
         self.meanings = {
-            
+
                         partOfSpeech1: {
                                         definition1: example1
                                         definition2: example2
@@ -68,13 +68,14 @@ class Glossary:
                         ....
                         }
 
-        '''
+        """
 
+        response = []
         if self.ready_for_request:
             response = requests.get(f'https://api.dictionaryapi.dev/api/v2/entries/en/{self.word}').json()
             if type(response) != dict:
                 self.status = True
-        
+
         if self.status:
             data = response[0]
             if 'phonetic' in data.keys():
@@ -87,7 +88,6 @@ class Glossary:
                     if 'text' in record.keys():
                         self.phonetic['transcription'] = record['text']
                     break
-            
 
             for meaning_in_data in data['meanings']:
                 self.meanings[meaning_in_data['partOfSpeech']] = {}
@@ -95,10 +95,10 @@ class Glossary:
                 for definition in meaning_in_data['definitions']:
                     if 'example' in definition.keys():
                         if definition['example'] != '':
-                            self.meanings[meaning_in_data['partOfSpeech']][definition['definition']] = definition['example']
+                            self.meanings[meaning_in_data['partOfSpeech']][definition['definition']] = definition[
+                                'example']
                     else:
                         self.meanings[meaning_in_data['partOfSpeech']][definition['definition']] = ''
-        
 
     def print(self):
         if self.status:
@@ -130,7 +130,6 @@ class Glossary:
         else:
             print('Either no definitions, or might be an error')
 
-
     def build_string(self):
         string_for_output = ''
         if self.status:
@@ -138,7 +137,7 @@ class Glossary:
 
             if 'transcription' in self.phonetic.keys():
                 string_for_output += f'\nTranscription: {self.phonetic["transcription"]}\n'
-            
+
             if 'audio' in self.phonetic.keys():
                 string_for_output += f'Pronunciation: {self.phonetic["audio"]}\n'
 
